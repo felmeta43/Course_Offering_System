@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Generate Sections</h3>
+<p>This matches every imported course to the student groups that take it (including other departments
+for common/service courses) and creates the sections that will need an instructor.</p>
+<form method="post">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label class="form-label">Academic Term</label>
+    <select name="academic_term" class="form-select">
+      {% for t in terms %}<option value="{{ t.id }}">{{ t }}</option>{% endfor %}
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary">Generate</button>
+</form>
+{% endblock %}

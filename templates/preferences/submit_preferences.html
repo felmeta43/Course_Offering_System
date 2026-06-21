@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>My Course Preferences</h3>
+
+{% if not window %}
+  <div class="alert alert-warning">No preference window has been opened for your department yet for the current term.</div>
+{% else %}
+  <div class="alert alert-{% if window.is_open %}info{% else %}danger{% endif %}">
+    Deadline: {{ window.deadline }} - status: <strong>{% if window.is_open %}OPEN{% else %}CLOSED{% endif %}</strong>
+  </div>
+
+  {% if window.is_open %}
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Submit Preferences</button>
+  </form>
+  {% elif existing %}
+    <h5>Your submitted preferences</h5>
+    <ol>
+      {% for p in existing %}<li>{{ p.course }}</li>{% endfor %}
+    </ol>
+  {% else %}
+    <p>The deadline has passed and you did not submit preferences.</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

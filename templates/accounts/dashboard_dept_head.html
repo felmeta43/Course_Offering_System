@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Department Head Dashboard</h3>
+<p>Department: <strong>{{ user.department }}</strong> | Current term: <strong>{{ current_term|default:"none set" }}</strong></p>
+
+{% if window %}
+  <div class="alert alert-{% if window.is_open %}info{% else %}secondary{% endif %}">
+    Preference window for {{ window.academic_term }}: opens {{ window.opens_at }}, deadline {{ window.deadline }}.
+    Status: <strong>{% if window.is_open %}OPEN{% else %}CLOSED{% endif %}</strong>
+  </div>
+{% else %}
+  <div class="alert alert-warning">No preference deadline set yet for the current term.</div>
+{% endif %}
+
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title">Preferences</h5>
+      <p>Set the deadline for instructors to submit their top 3 course preferences.</p>
+      <a class="btn btn-outline-primary" href="{% url 'preferences:manage_deadlines' %}">Manage Deadlines</a>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title">Sections</h5>
+      <p>Review the sections needing an instructor this term.</p>
+      <a class="btn btn-outline-secondary" href="{% url 'curriculum:section_list' %}">View Sections</a>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title">Assignment</h5>
+      <p>Once the deadline has passed, assign instructors automatically.</p>
+      <a class="btn btn-success" href="{% url 'assignments:run_assignment' %}">Assign Automatically</a>
+      <a class="btn btn-outline-secondary" href="{% url 'assignments:results' %}">Results &amp; Load Report</a>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

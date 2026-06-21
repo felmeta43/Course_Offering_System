@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Courses</h3>
+{% if user.role == "ADMIN" %}
+<a class="btn btn-primary mb-3" href="{% url 'curriculum:import_courses' %}">Import from Excel</a>
+{% endif %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Code</th><th>Title</th><th>Dept</th><th>Type</th><th>Year</th><th>Sem</th>
+      <th>Lec</th><th>Tut</th><th>Lab</th><th>Credit</th><th>Also offered to</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in courses %}
+    <tr>
+      <td>{{ c.code }}</td>
+      <td>{{ c.title }}</td>
+      <td>{{ c.department.code }}</td>
+      <td>{{ c.get_course_type_display }}</td>
+      <td>{{ c.year_level }}</td>
+      <td>{{ c.get_semester_display }}</td>
+      <td>{{ c.lecture_hours }}</td>
+      <td>{{ c.tutorial_hours }}</td>
+      <td>{{ c.lab_hours }}</td>
+      <td>{{ c.credit_hours }}</td>
+      <td>{% for d in c.target_departments.all %}{{ d.code }} {% endfor %}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="11">No courses yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

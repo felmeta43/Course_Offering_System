@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Assign Courses Automatically</h3>
+<p>Department: <strong>{{ department }}</strong>, Term: <strong>{{ current_term|default:"none set" }}</strong></p>
+<p>This will assign every unassigned section owned by your department (including common/service
+courses given to other departments) to an instructor, balancing total load while honoring
+preferences, academic rank, and experience. Regular and extension sections are balanced
+independently. No instructor will receive more than the configured number of major courses.</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-success">Assign Automatically</button>
+</form>
+{% endblock %}

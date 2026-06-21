@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Admin Dashboard</h3>
+<p>Current term: <strong>{{ current_term|default:"none set" }}</strong></p>
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title">Curriculum</h5>
+      <p>Import courses (lecture/lab/tutorial hours, type, prerequisites).</p>
+      <a class="btn btn-outline-primary" href="{% url 'curriculum:import_courses' %}">Import Courses</a>
+      <a class="btn btn-outline-secondary" href="{% url 'curriculum:course_list' %}">View Courses</a>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title">Student Groups</h5>
+      <p>Import year/section/headcount per department per term.</p>
+      <a class="btn btn-outline-primary" href="{% url 'curriculum:import_student_groups' %}">Import Student Groups</a>
+      <a class="btn btn-outline-secondary" href="{% url 'curriculum:student_group_list' %}">View Student Groups</a>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title">Sections</h5>
+      <p>Generate the sections that need an instructor for a term.</p>
+      <a class="btn btn-outline-primary" href="{% url 'curriculum:generate_sections' %}">Generate Sections</a>
+      <a class="btn btn-outline-secondary" href="{% url 'curriculum:section_list' %}">View Sections</a>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title">Institution Settings</h5>
+      <p>Departments, academic terms, and policy weights are configured in the admin panel.</p>
+      <a class="btn btn-outline-dark" href="/admin/">Open Admin Panel</a>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

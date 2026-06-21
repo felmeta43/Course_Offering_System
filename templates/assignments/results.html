@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Assignment Results &amp; Load Report</h3>
+<p>Department: <strong>{{ department }}</strong>, Term: <strong>{{ current_term|default:"none set" }}</strong></p>
+
+<h5>Load Balance Summary</h5>
+<table class="table table-striped">
+  <thead><tr><th>Instructor</th><th>Rank</th><th>Regular Load</th><th>Extension Load</th><th>Major Courses</th></tr></thead>
+  <tbody>
+    {% for row in load_rows %}
+    <tr>
+      <td>{{ row.instructor }}</td>
+      <td>{{ row.instructor.get_academic_rank_display }}</td>
+      <td>{{ row.regular_load }}</td>
+      <td>{{ row.extension_load }}</td>
+      <td>{{ row.major_course_count }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No assignments yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h5>All Assignments</h5>
+<table class="table table-striped">
+  <thead><tr><th>Course</th><th>Student Group</th><th>Instructor</th><th>Load</th><th>Method</th></tr></thead>
+  <tbody>
+    {% for a in assignments %}
+    <tr>
+      <td>{{ a.section.course.code }}</td>
+      <td>{{ a.section.student_group }}</td>
+      <td>{{ a.instructor }}</td>
+      <td>{{ a.load }}</td>
+      <td>{{ a.get_method_display }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">None yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

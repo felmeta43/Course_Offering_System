@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>{{ title }}</h3>
+<p><a href="{{ template_url }}">Download the Excel template</a> with the required columns and a sample row.</p>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Upload &amp; Import</button>
+</form>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Sections</h3>
+<form method="get" class="row g-2 mb-3">
+  <div class="col-auto">
+    <select name="term" class="form-select" onchange="this.form.submit()">
+      <option value="">All terms</option>
+      {% for t in terms %}<option value="{{ t.id }}">{{ t }}</option>{% endfor %}
+    </select>
+  </div>
+</form>
+<table class="table table-striped">
+  <thead><tr><th>Course</th><th>Type</th><th>Student Group</th><th>Students</th><th>Term</th><th>Load</th><th>Assigned To</th></tr></thead>
+  <tbody>
+    {% for s in sections %}
+    <tr>
+      <td>{{ s.course.code }} - {{ s.course.title }}</td>
+      <td>{{ s.course.get_course_type_display }}</td>
+      <td>{{ s.student_group }}</td>
+      <td>{{ s.student_group.number_of_students }}</td>
+      <td>{{ s.academic_term }}</td>
+      <td>{{ s.compute_load }}</td>
+      <td>
+        {% if s.assignment %}{{ s.assignment.instructor }}{% else %}<span class="text-muted">Unassigned</span>{% endif %}
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7">No sections yet. Generate them from imported courses and student groups.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

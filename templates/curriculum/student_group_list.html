@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Student Groups</h3>
+{% if user.role == "ADMIN" %}
+<a class="btn btn-primary mb-3" href="{% url 'curriculum:import_student_groups' %}">Import from Excel</a>
+{% endif %}
+<table class="table table-striped">
+  <thead><tr><th>Department</th><th>Term</th><th>Year</th><th>Section</th><th>Students</th><th>Extension?</th></tr></thead>
+  <tbody>
+    {% for g in groups %}
+    <tr>
+      <td>{{ g.department.code }}</td>
+      <td>{{ g.academic_term }}</td>
+      <td>{{ g.year_level }}</td>
+      <td>{{ g.section }}</td>
+      <td>{{ g.number_of_students }}</td>
+      <td>{{ g.is_extension|yesno:"Yes,No" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="6">No student groups yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

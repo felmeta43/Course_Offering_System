@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Instructor Dashboard</h3>
+<p>Department: <strong>{{ user.department }}</strong> | Academic rank: <strong>{{ user.get_academic_rank_display }}</strong></p>
+<p>Current term: <strong>{{ current_term|default:"none set" }}</strong></p>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title">Course Preferences</h5>
+      <p>Submit your top 3 preferred courses before the department deadline.</p>
+      <a class="btn btn-outline-primary" href="{% url 'preferences:submit_preferences' %}">Submit Preferences</a>
+    </div></div>
+  </div>
+  <div class="col-md-6">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title">My Assignments</h5>
+      <p>See the courses and load assigned to you for this term.</p>
+      <a class="btn btn-outline-secondary" href="{% url 'assignments:my_assignments' %}">View My Assignments</a>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

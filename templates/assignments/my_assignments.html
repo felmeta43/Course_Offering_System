@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>My Assignments</h3>
+<p>Total regular load: <strong>{{ total_regular }}</strong> | Total extension load: <strong>{{ total_extension }}</strong></p>
+<table class="table table-striped">
+  <thead><tr><th>Course</th><th>Student Group</th><th>Term</th><th>Load</th><th>Extension?</th></tr></thead>
+  <tbody>
+    {% for a in assignments %}
+    <tr>
+      <td>{{ a.section.course.code }} - {{ a.section.course.title }}</td>
+      <td>{{ a.section.student_group }}</td>
+      <td>{{ a.section.academic_term }}</td>
+      <td>{{ a.load }}</td>
+      <td>{{ a.section.is_extension|yesno:"Yes,No" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No assignments yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
