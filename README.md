@@ -25,6 +25,12 @@ each semester, configurable for any college or university.
   consumes it. Section generation creates one section per consuming
   department's student group, and the owning department's instructors are
   balanced across all of them exactly like their own major courses.
+- **Cross-semester load fairness**: the engine looks at each instructor's
+  total load from the immediately preceding term
+  (`AcademicTerm.previous_term`) and compensates for it - instructors who
+  were overloaded last semester score lower this semester, and those who
+  were under-loaded score higher, controlled by
+  `Institution.previous_term_balance_weight`.
 - **Major-course cap**: `Institution.max_major_courses_per_instructor`
   (default 2) is enforced in the engine - an instructor already at the cap
   is simply excluded from candidacy for another major course.

@@ -32,6 +32,12 @@ class Institution(models.Model):
         help_text="How strongly the engine penalizes assigning more load to an "
         "already-loaded instructor. Higher = stronger load balancing.",
     )
+    previous_term_balance_weight = models.FloatField(
+        default=10.0,
+        help_text="How strongly the engine compensates for last semester's load when "
+        "assigning this semester: instructors who were overloaded last semester get "
+        "less this semester, and instructors who were under-loaded get more. 0 disables this.",
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -105,3 +111,16 @@ class AcademicTerm(models.Model):
             AcademicTerm.objects.filter(institution=self.institution).exclude(
                 pk=self.pk
             ).update(is_current=False)
+
+    def previous_term(self):
+        """The term immediately before this one for the same institution,
+        used to carry load-balancing fairness across semesters."""
+        return (
+            AcademicTerm.objects.filter(institution=self.institution)
+            .filter(
+                models.Q(academic_year__lt=self.academic_year)
+                | models.Q(academic_year=self.academic_year, semester__lt=self.semester)
+            )
+            .order_by("-academic_year", "-semester")
+            .first()
+        )

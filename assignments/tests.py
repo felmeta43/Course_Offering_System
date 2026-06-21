@@ -254,3 +254,46 @@ class AutoAssignmentTests(BaseAssignmentTestCase):
         self.make_instructor("i1")
         with self.assertRaises(AssignmentError):
             run_auto_assignment(self.department, self.term, None)
+
+    def test_previously_overloaded_instructor_gets_less_this_term(self):
+        previous_term = AcademicTerm.objects.create(
+            institution=self.institution, academic_year="2024/2025", semester=2
+        )
+        overloaded = self.make_instructor("overloaded")
+        underloaded = self.make_instructor("underloaded")
+
+        # Give `overloaded` a heavy previous-term load and `underloaded` a light one.
+        prev_course_heavy = self.make_course("HIST901", lecture=10)
+        prev_course_light = self.make_course("HIST902", lecture=1)
+        heavy_group = StudentGroup.objects.create(
+            department=self.department, academic_term=previous_term, year_level=1,
+            section="A", number_of_students=30,
+        )
+        light_group = StudentGroup.objects.create(
+            department=self.department, academic_term=previous_term, year_level=1,
+            section="B", number_of_students=30,
+        )
+        heavy_section = Section.objects.create(
+            course=prev_course_heavy, student_group=heavy_group, academic_term=previous_term
+        )
+        light_section = Section.objects.create(
+            course=prev_course_light, student_group=light_group, academic_term=previous_term
+        )
+        Assignment.objects.create(
+            section=heavy_section, instructor=overloaded, load=heavy_section.compute_load()
+        )
+        Assignment.objects.create(
+            section=light_section, instructor=underloaded, load=light_section.compute_load()
+        )
+
+        self.close_preference_window()
+        # One new common course this term - identical for both candidates, no
+        # preference signal, so the previous-term deviation should decide it.
+        course = self.make_course("GEN900", lecture=3, course_type=Course.CourseType.COMMON)
+        group = self.make_student_group(self.department, section="Z")
+        self.make_section(course, group)
+
+        run_auto_assignment(self.department, self.term, None)
+
+        assignment = Assignment.objects.get(section__course=course)
+        self.assertEqual(assignment.instructor_id, underloaded.id)

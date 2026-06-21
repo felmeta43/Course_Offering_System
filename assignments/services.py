@@ -48,14 +48,44 @@ def _course_experience_map(instructors, courses):
     return {(i, c): t for i, c, t in rows}
 
 
+def _previous_term_load_map(instructors, academic_term):
+    """instructor_id -> total load (regular + extension) carried in the term
+    immediately before `academic_term`. Used so this run can compensate -
+    instructors who were overloaded last semester are favored less this
+    time, and previously under-loaded instructors are favored more."""
+    previous_term = academic_term.previous_term()
+    if previous_term is None:
+        return {}, Decimal("0")
+
+    rows = Assignment.objects.filter(
+        instructor__in=instructors, section__academic_term=previous_term
+    ).values_list("instructor_id", "load")
+
+    totals = defaultdict(lambda: Decimal("0"))
+    for instructor_id, load in rows:
+        totals[instructor_id] += load
+
+    # Average across *all* candidate instructors (including those with zero
+    # previous load) so someone with no prior assignment still counts as
+    # under-loaded relative to the group, not silently ignored.
+    if instructors:
+        average = sum(totals.values(), Decimal("0")) / len(instructors)
+    else:
+        average = Decimal("0")
+    return dict(totals), average
+
+
 class _InstructorState:
-    __slots__ = ("instructor", "regular_load", "extension_load", "major_courses")
+    __slots__ = (
+        "instructor", "regular_load", "extension_load", "major_courses", "previous_term_deviation",
+    )
 
     def __init__(self, instructor):
         self.instructor = instructor
         self.regular_load = Decimal("0")
         self.extension_load = Decimal("0")
         self.major_courses = set()  # course_ids of MAJOR courses already assigned
+        self.previous_term_deviation = 0.0  # (prev_load - prev_average) / prev_average, clamped to [-1, 1]
 
 
 def _score(instructor, course, state, weights, pref_rank, course_experience_count, current_load):
@@ -79,7 +109,17 @@ def _score(instructor, course, state, weights, pref_rank, course_experience_coun
 
     load_penalty = float(weights.load_balance_penalty) * float(current_load)
 
-    return pref_bonus + rank_score + exp_score + course_exp_score - load_penalty
+    # Cross-semester fairness: a positive deviation means this instructor
+    # carried more than the group's average load last semester, so they are
+    # penalized this semester; a negative deviation (under-loaded last time)
+    # becomes a bonus, per the "previously overloaded instructors should
+    # become comparatively less loaded" requirement.
+    previous_term_adjustment = -float(weights.previous_term_balance_weight) * state.previous_term_deviation
+
+    return (
+        pref_bonus + rank_score + exp_score + course_exp_score
+        - load_penalty + previous_term_adjustment
+    )
 
 
 def _assign_pool(sections, states, weights, pref_map, course_exp_map, max_major_courses, pool_attr):
@@ -169,6 +209,13 @@ def run_auto_assignment(department, academic_term, run_by):
     pref_map = _preference_map(instructors, academic_term)
     courses = Course.objects.filter(id__in={s.course_id for s in sections})
     course_exp_map = _course_experience_map(instructors, courses)
+
+    previous_loads, previous_average = _previous_term_load_map(instructors, academic_term)
+    for state in states:
+        prev_load = previous_loads.get(state.instructor.id, Decimal("0"))
+        if previous_average > 0:
+            deviation = float((prev_load - previous_average) / previous_average)
+            state.previous_term_deviation = max(-1.0, min(1.0, deviation))
 
     regular_sections = [s for s in sections if not s.is_extension]
     extension_sections = [s for s in sections if s.is_extension]

@@ -56,12 +56,21 @@ def results(request):
             if a.section.course.is_major:
                 major_courses[a.instructor_id].add(a.section.course_id)
 
+        previous_term = current_term.previous_term()
+        previous_load = defaultdict(lambda: Decimal("0"))
+        if previous_term:
+            for instructor_id, load in Assignment.objects.filter(
+                instructor_id__in=instructors.keys(), section__academic_term=previous_term
+            ).values_list("instructor_id", "load"):
+                previous_load[instructor_id] += load
+
         for instructor_id, instructor in instructors.items():
             load_rows.append({
                 "instructor": instructor,
                 "regular_load": regular_load[instructor_id],
                 "extension_load": extension_load[instructor_id],
                 "major_course_count": len(major_courses[instructor_id]),
+                "previous_term_load": previous_load[instructor_id],
             })
         load_rows.sort(key=lambda r: r["regular_load"], reverse=True)
 

@@ -5,7 +5,7 @@
 
 <h5>Load Balance Summary</h5>
 <table class="table table-striped">
-  <thead><tr><th>Instructor</th><th>Rank</th><th>Regular Load</th><th>Extension Load</th><th>Major Courses</th></tr></thead>
+  <thead><tr><th>Instructor</th><th>Rank</th><th>Regular Load</th><th>Extension Load</th><th>Major Courses</th><th>Previous Term Load</th></tr></thead>
   <tbody>
     {% for row in load_rows %}
     <tr>
@@ -14,9 +14,10 @@
       <td>{{ row.regular_load }}</td>
       <td>{{ row.extension_load }}</td>
       <td>{{ row.major_course_count }}</td>
+      <td>{{ row.previous_term_load }}</td>
     </tr>
     {% empty %}
-    <tr><td colspan="5">No assignments yet.</td></tr>
+    <tr><td colspan="6">No assignments yet.</td></tr>
     {% endfor %}
   </tbody>
 </table>
